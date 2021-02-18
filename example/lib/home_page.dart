@@ -9,49 +9,67 @@ class HomePageView extends StatefulWidget {
 
 class _HomePageViewState extends State<HomePageView> {
   String clickedValue = "";
+  List<String> list;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setData();
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
-          title: Text('Starforce Dialog Picker'),
+          title: Text('Dialog Picker'),
         ),
         body: Center(
             child: InkWell(
-              onTap: () async {
-                DialogPicker.show(
-                    title: "Title",
-                    context: context,
-                    dataSource: await ListHelper.getStringList(),
-                    selected: (a, b) {
-                      print("$a --- $b");
-                     setState(() {
-                       clickedValue = b;
-                     });
-
-                    });
-              },
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 100,
-                  ),
-                  Container(
-                      color: Colors.deepOrange,
-                      child: Padding(
-                        padding: const EdgeInsets.all(18.0),
-                        child: Text(
-                          "Open Picker",
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
-                        ),
-                      )),
-
-                  SizedBox(
-                    height: 100,
-                  ),
-                  Text(clickedValue ?? "")
-                ],
+          onTap: () async {
+            DialogPicker.init(
+              dataSource_: list,
+              title_: "Dialog Picker Template",
+            );
+            DialogPicker.show(
+                context: context,
+                selected: (index, item) {
+                  setState(() {
+                    clickedValue = item;
+                  });
+                });
+          },
+          child: Column(
+            children: [
+              SizedBox(
+                height: 100,
               ),
-            )));
+              Container(
+                  color: Colors.deepOrange,
+                  child: Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: Text(
+                      "Open Picker",
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+                    ),
+                  )),
+              SizedBox(
+                height: 100,
+              ),
+              Text(clickedValue ?? "")
+            ],
+          ),
+        )));
+  }
+
+  setData() async {
+    list = await ListHelper.getStringList();
+
+    /*Future.delayed(Duration(seconds: 10), () async {
+      setState(() {
+        list.add("Emre");
+        DialogPicker.reload(list);
+      });
+    });*/
   }
 }

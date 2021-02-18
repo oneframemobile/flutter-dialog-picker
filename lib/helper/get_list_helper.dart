@@ -14,6 +14,13 @@ class ListHelper {
     return listDataSource;
   }
 
+  static Future<List<String>> getStringList2() async {
+    List<String> listDataSource = new List();
+    listDataSource.add("Cherry");
+
+    return listDataSource;
+  }
+
   static Future<List<DialogPickerDataModel>> getObjectList() async {
     List<DialogPickerDataModel> listDataSource = new List();
     listDataSource.add(new DialogPickerDataModel(0, "Cherry", "Cherry", false));

@@ -8,14 +8,8 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   final navigatorKey = GlobalKey<NavigatorState>();
 
-  String clickedValue = "";
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey,
-      title: 'Dialog Picker',
-      home: new HomePageView()
-    );
+    return MaterialApp(debugShowCheckedModeBanner: false, navigatorKey: navigatorKey, title: 'Dialog Picker', home: new HomePageView());
   }
 }

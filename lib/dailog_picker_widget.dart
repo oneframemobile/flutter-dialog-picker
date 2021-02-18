@@ -1,15 +1,16 @@
+import 'package:dialog_picker/model/dialog_picker_item.dart';
 import 'package:flutter/material.dart';
 
 import 'notch_widget.dart';
 
-class StarForceDialogPicker extends StatefulWidget {
+class DialogPickerWidget extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => StarForceDialogPickerState();
+  State<StatefulWidget> createState() => DialogPickerWidgetState();
   final String title;
-  final List<String> dataSource;
+  List<String> dataSource;
   final Function(int, String) selected;
 
-  StarForceDialogPicker({
+  DialogPickerWidget({
     Key key,
     this.title,
     this.dataSource,
@@ -17,28 +18,43 @@ class StarForceDialogPicker extends StatefulWidget {
   }) : super(key: key);
 }
 
-class StarForceDialogPickerState extends State<StarForceDialogPicker> with SingleTickerProviderStateMixin {
-  int selectedIndex;
-  String selectedItem = "";
+class DialogPickerWidgetState extends State<DialogPickerWidget> with SingleTickerProviderStateMixin {
+  List<DialogPickerItem> _dataSource;
+  DialogPickerItem selectedItem;
+
+
+  reloadData(List<String> dataSource) {
+   /* setState(() {
+      currentDataSource = ValueNotifier(dataSource);
+    });*/
+  }
 
   @override
   void initState() {
     super.initState();
+    _dataSource = getConvertedData();
   }
 
   @override
   Widget build(BuildContext context) {
+    return mainContent;
+  }
+
+  Widget get mainContent {
     return FractionallySizedBox(
-      heightFactor: 0.95,
+      heightFactor: 1,
       child: Stack(
         children: [
           Column(
             children: [
+              SizedBox(
+                height: kToolbarHeight,
+              ),
               NotchWidget(),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                  "StarForce Template",
+                  widget.title ?? "",
                   style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),
@@ -70,20 +86,20 @@ class StarForceDialogPickerState extends State<StarForceDialogPicker> with Singl
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (term) {
                     /* setState(() {
-                      _profileViewModel.search(term);
-                      if (_profileViewModel.citiesTmp.length != 0 && _profileViewModel.isCity) {
-                        list = _profileViewModel.citiesTmp;
-                      }
-                      else if (_profileViewModel.counties.length != 0 && !_profileViewModel.isCity) {
-                        list = _profileViewModel.countiesTmp;
-                      }
-                      else if(isCity){
-                        list = _profileViewModel.cities;
-                      }
-                      else{
-                        list = _profileViewModel.counties;
-                      }
-                    });*/
+                    _profileViewModel.search(term);
+                    if (_profileViewModel.citiesTmp.length != 0 && _profileViewModel.isCity) {
+                      list = _profileViewModel.citiesTmp;
+                    }
+                    else if (_profileViewModel.counties.length != 0 && !_profileViewModel.isCity) {
+                      list = _profileViewModel.countiesTmp;
+                    }
+                    else if(isCity){
+                      list = _profileViewModel.cities;
+                    }
+                    else{
+                      list = _profileViewModel.counties;
+                    }
+                  });*/
                   },
                 ),
               ),
@@ -96,21 +112,24 @@ class StarForceDialogPickerState extends State<StarForceDialogPicker> with Singl
                   child: ListView.builder(
                     shrinkWrap: true,
                     primary: false,
-                    itemCount: widget.dataSource.length,
+                    itemCount: _dataSource.length,
                     itemBuilder: (BuildContext context, int index) {
                       return InkWell(
                         onTap: () {
                           /* if (!isMultiSelect) {
-                            selected(index);
-                          } else {
-                            setState(() {
-                              addSelectedList(index);
-                            });
-                          }*/
+                          selected(index);
+                        } else {
+                          setState(() {
+                            addSelectedList(index);
+                          });
+                        }*/
 
                           setState(() {
-                            selectedIndex = index;
-                            selectedItem = widget.dataSource[index];
+                            _dataSource.forEach((item) {
+                              item.isSelected = false;
+                            });
+                            _dataSource[index].isSelected = !_dataSource[index].isSelected;
+                            selectedItem = new DialogPickerItem(index: index, key: widget.dataSource[index], title: widget.dataSource[index], isSelected: true);
                           });
                         },
                         child: ListTile(
@@ -122,11 +141,13 @@ class StarForceDialogPickerState extends State<StarForceDialogPicker> with Singl
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(widget.dataSource[index], style: TextStyle(color: Colors.white)),
-                                  selectedItem.contains(widget.dataSource[index]) ? Icon(
-                                    Icons.play_arrow,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ) : Container()
+                                  _dataSource[index].isSelected
+                                      ? Icon(
+                                          Icons.play_arrow,
+                                          size: 16,
+                                          color: Colors.white,
+                                        )
+                                      : Container()
                                 ],
                               ),
                               SizedBox(
@@ -137,7 +158,7 @@ class StarForceDialogPickerState extends State<StarForceDialogPicker> with Singl
                                 height: 1,
                               ),
                               SizedBox(
-                                height: index == widget.dataSource.length - 1 ? 60 : 0,
+                                height: index == _dataSource.length - 1 ? 60 : 0,
                               )
                             ],
                           ),
@@ -158,8 +179,7 @@ class StarForceDialogPickerState extends State<StarForceDialogPicker> with Singl
                     alignment: Alignment.centerRight,
                     child: InkWell(
                       onTap: () {
-                        if(selectedIndex!=null)
-                        widget.selected(selectedIndex, selectedItem);
+                        if (selectedItem != null) widget.selected(selectedItem.index, selectedItem.title);
                         Navigator.of(context).pop();
                       },
                       child: Padding(
@@ -176,5 +196,15 @@ class StarForceDialogPickerState extends State<StarForceDialogPicker> with Singl
         ],
       ),
     );
+  }
+
+  List<DialogPickerItem> getConvertedData() {
+    List<DialogPickerItem> dataSource = new List();
+    for (int i = 0; i < widget.dataSource.length; i++) {
+      dataSource.add(new DialogPickerItem(index: i, key: widget.dataSource[i], title: widget.dataSource[i], isSelected: false));
+    }
+
+
+    return dataSource;
   }
 }
