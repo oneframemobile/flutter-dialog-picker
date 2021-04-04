@@ -1,4 +1,6 @@
+import 'package:dialog_picker/appearance_model.dart';
 import 'package:dialog_picker/dialog_picker.dart';
+import 'package:dialog_picker/enum/picker_theme.dart';
 import 'package:dialog_picker/helper/get_list_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -10,10 +12,11 @@ class HomePageView extends StatefulWidget {
 class _HomePageViewState extends State<HomePageView> {
   String clickedValue = "";
   List<String> list;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  int selectedIndex = -1;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setData();
   }
@@ -21,21 +24,26 @@ class _HomePageViewState extends State<HomePageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
           title: Text('Dialog Picker'),
         ),
         body: Center(
             child: InkWell(
           onTap: () async {
-            DialogPicker.init(
-              dataSource_: list,
-              title_: "Dialog Picker Template",
+            DialogPicker.instance.init(
+              dataSource: list,
+              title: "Dialog Picker Template",
+              selectedIndex: selectedIndex,
+              theme: PickerTheme.DARK
             );
-            DialogPicker.show(
+
+            DialogPicker.instance.show(
                 context: context,
                 selected: (index, item) {
                   setState(() {
                     clickedValue = item;
+                    selectedIndex = index;
                   });
                 });
           },
@@ -45,7 +53,7 @@ class _HomePageViewState extends State<HomePageView> {
                 height: 100,
               ),
               Container(
-                  color: Colors.deepOrange,
+                  color: Colors.blue,
                   child: Padding(
                     padding: const EdgeInsets.all(18.0),
                     child: Text(
@@ -65,11 +73,11 @@ class _HomePageViewState extends State<HomePageView> {
   setData() async {
     list = await ListHelper.getStringList();
 
-    /*Future.delayed(Duration(seconds: 10), () async {
+    Future.delayed(Duration(seconds: 10), () async {
       setState(() {
         list.add("Emre");
-        DialogPicker.reload(list);
+        DialogPicker.instance.updateData(list);
       });
-    });*/
+    });
   }
 }
