@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "title": "Koç Holding",
+    "imageUrl": "https://api.koc.com.tr/KocHolding/files/a9/a9f78b6b-48b9-42ea-8693-3b52a6ff9209.png"
+  },
+  {
+    "id": 2,
+    "title": "KoçSistem",
+    "imageUrl": "https://avatars.githubusercontent.com/u/19717563?s=280&v=4",
+    "isSelected": true
+  },
+  {
+    "id": 3,
+    "title": "KoçDigital",
+    "imageUrl": "https://cdn.kocdigital.com/getmedia/b5f5fc6c-5e17-4b47-99bc-6810ce4d6197/siyah-logo-vektorel.png?width=300&height=98&ext=.png"
+  }
+]

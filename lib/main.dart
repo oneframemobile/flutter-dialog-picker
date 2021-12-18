@@ -1,6 +1,11 @@
-import 'package:dialog_picker/dialog_picker.dart';
-import 'package:dialog_picker/dialog_picker_style.dart';
+import 'dart:convert';
+
+import 'package:dialog_picker/widgets/dialog_picker.dart';
+import 'package:dialog_picker/widgets/progressbtn.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'model/dialog_picker_data_model.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,12 +23,11 @@ class MyApp extends StatelessWidget {
         colorScheme: const ColorScheme.light(
           primary: Colors.blue,
         ),
-        dialogTheme: DialogTheme(
+        dialogTheme: const DialogTheme(
           titleTextStyle: TextStyle(),
           contentTextStyle: TextStyle(),
           elevation: 8,
           shape: BeveledRectangleBorder(),
-          backgroundColor: Colors.red
         )
       ),
       darkTheme: ThemeData(
@@ -38,9 +42,8 @@ class MyApp extends StatelessWidget {
 }
 
 class Home extends StatelessWidget {
-  final _data = ["Istanbul", "Ankara", "Bursa", "Izmir"];
-  final _key = GlobalKey<DialogPickerState<String>>();
-
+  final _key = GlobalKey<DialogPickerState<DialogPickerDataModel>>();
+  final _keyProgressBtn = GlobalKey<ProgressButtonState>();
   Home({Key? key}) : super(key: key);
 
   @override
@@ -48,54 +51,71 @@ class Home extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: ElevatedButton(
-            child: const Text("Goster"),
-            onPressed: () {
-              showDialog<DialogPicker<String>>(
-                barrierDismissible: false,
-                context: context,
-                builder: (context) => DialogPicker.custom<String>(
-                  key: _key,
-                  title: "Pick a City",
-                  dataSource: _data,
-                  selected: ["Istanbul"],
-                  allowMultipleSelection: false,
-                  style: DialogPickerStyle(
-                    backgroundColor: Colors.red,
-                    shape: BeveledRectangleBorder(),
-                    elevation: 8,
-                    contentTextStyle: TextStyle(),
-                    titleTextStyle: TextStyle(),
-                    searchTextStyle: TextStyle(),
-                    brightness: Brightness.dark,
-                    buttonTheme: TextStyle(),
-                    headerColor: Colors.redAccent,
-                    iconColor: Colors.blue,
-                  ),
-                  onCompletion: (List<String> selected) => Navigator.pop(context),
-                  onCancel: () => Navigator.pop(context),
-                ),
-              );
-
-              const sec = Duration(seconds: 1);
-              Future.delayed(sec).then((value) => _key.currentState?.startLoading());
-
-              const duration = Duration(seconds: 3);
-              Future.delayed(duration).then((value) {
-                final source = [
-                  "Istanbul",
-                  "Ankara",
-                  "Bursa",
-                  "Izmir",
-                  "Edirne",
-                ];
-                _key.currentState?.update(source);
-                _key.currentState?.stopLoading();
-              });
-            },
+          child: ProgressButton(
+            key: _keyProgressBtn,
+            btnHeight: 48,
+            btnWidth: MediaQuery.of(context).size.width,
+            onClick: () => show(context),
+            text: "Göster",
+            textStyle: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+            btnBackgroundColor: Colors.blue,
           ),
         ),
       ),
     );
   }
+
+  show(BuildContext context) {
+    _keyProgressBtn.currentState?.startLoading();
+    const duration = Duration(seconds: 2);
+    Future.delayed(duration).then((value) async {
+      final String response = await rootBundle.loadString('assets/sample.json');
+      _keyProgressBtn.currentState?.stopLoading();
+      try {
+        List<DialogPickerDataModel> list = parseJson(response);
+        showDialog<DialogPicker<DialogPickerDataModel>>(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => DialogPicker.custom<DialogPickerDataModel>(
+              key: _key,
+              title: "Pick a Company",
+              dataSource: list,
+              selected: [],
+              allowMultipleSelection: true,
+              onCompletion: (List<DialogPickerDataModel> selected) {
+                Navigator.pop(context);
+                if (selected.isNotEmpty) {
+                  selected.forEach((element) {
+                    print(element.title);
+                  });
+                }
+              },
+              onCancel: () {
+                Navigator.pop(context);
+              },
+              errorDescription: "Liste boş!",
+              errorIcon: Icons.error,
+              cancelBtn: "İptal",
+              okBtn: "Tamamdır"
+          ),
+        );
+      } catch(e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                backgroundColor: Colors.red,
+                content: Text(e.toString())
+            )
+        );
+      }
+    });
+  }
+
+  List<DialogPickerDataModel> parseJson(String response) {
+    final parsed = jsonDecode(response).cast<Map<String, dynamic>>();
+    return parsed.map<DialogPickerDataModel>((json) => DialogPickerDataModel.fromJson(json)).toList();
+  }
+
 }
