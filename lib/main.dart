@@ -18,13 +18,6 @@ class MyApp extends StatelessWidget {
         colorScheme: const ColorScheme.light(
           primary: Colors.blue,
         ),
-        dialogTheme: DialogTheme(
-          titleTextStyle: TextStyle(),
-          contentTextStyle: TextStyle(),
-          elevation: 8,
-          shape: BeveledRectangleBorder(),
-          backgroundColor: Colors.red
-        )
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
@@ -59,19 +52,7 @@ class Home extends StatelessWidget {
                   title: "Pick a City",
                   dataSource: _data,
                   selected: ["Istanbul"],
-                  allowMultipleSelection: false,
-                  style: DialogPickerStyle(
-                    backgroundColor: Colors.red,
-                    shape: BeveledRectangleBorder(),
-                    elevation: 8,
-                    contentTextStyle: TextStyle(),
-                    titleTextStyle: TextStyle(),
-                    searchTextStyle: TextStyle(),
-                    brightness: Brightness.dark,
-                    buttonTheme: TextStyle(),
-                    headerColor: Colors.redAccent,
-                    iconColor: Colors.blue,
-                  ),
+                  allowMultipleSelection: true,
                   onCompletion: (List<String> selected) => Navigator.pop(context),
                   onCancel: () => Navigator.pop(context),
                 ),
